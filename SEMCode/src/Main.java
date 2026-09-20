@@ -10,7 +10,7 @@ void main() {
         // for you, but you can always add more by pressing <shortcut actionId="ToggleLineBreakpoint"/>.
         IO.println("i = " + i);
 
-        IO.println("Hello Here is hello from ticket02, not a boring ticket");
+        IO.println("Hello Here is hello from ticket02 this is a fun ticket");
         // Above I have added line for requied code
 
     }
