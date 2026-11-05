@@ -1,5 +1,5 @@
 name: A workflow for my Population Application
-
+on: push
 jobs:
   UnitTests:
     name: Unit Tests
