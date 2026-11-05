@@ -1,11 +1,12 @@
 
   version: '3'
   services:
-    # Application Dockerfile is in same folder which is .
     app:
       build: .
+      depends_on:
+        - db
+      command: java -jar target/devops.jar db:3306 30000
 
-    # db is in db folder
     db:
       build: db/.
       restart: always

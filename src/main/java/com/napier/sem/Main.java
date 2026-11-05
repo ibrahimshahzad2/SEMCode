@@ -7,16 +7,14 @@ import java.util.List;
 public class Main
 {
     /**
-     - Connection to MySQL database.
-
+     * Connection to MySQL database.
      */
     private Connection con = null;
 
     /**
-     - Connect to the MySQL database.
-
+     * Connect to the MySQL database.
      */
-    public void connect()
+    public void connect(String location, int delay)
     {
         try
         {
@@ -36,9 +34,10 @@ public class Main
             try
             {
                 // Wait a bit for db to start
-                Thread.sleep(30000);
+                Thread.sleep(delay);
                 // Connect to database
-                con = DriverManager.getConnection("jdbc:mysql://db:3306/world?allowPublicKeyRetrieval=true&useSSL=false", "root", "password");
+                con = DriverManager.getConnection("jdbc:mysql://" + location
+                        + "/world?allowPublicKeyRetrieval=true&useSSL=false", "root", "password");
                 System.out.println("Successfully connected");
                 break;
             }
@@ -55,8 +54,7 @@ public class Main
     }
 
     /**
-     - Disconnect from the MySQL database.
-
+     * Disconnect from the MySQL database.
      */
     public void disconnect()
     {
@@ -160,6 +158,39 @@ public class Main
         }
     }
 
+    public ArrayList<Country> getTopCountries(int n)
+    {
+        try
+        {
+            Statement stmt = con.createStatement();
+            String strSelect =
+                    "SELECT Code, Name, Continent, Region, Population, Capital "
+                            + "FROM country "
+                            + "ORDER BY Population DESC "
+                            + "LIMIT " + n;
+            ResultSet rset = stmt.executeQuery(strSelect);
+
+            ArrayList<Country> countries = new ArrayList<Country>();
+            while (rset.next())
+            {
+                Country cnt = new Country();
+                cnt.code = rset.getString("Code");
+                cnt.name = rset.getString("Name");
+                cnt.continent = rset.getString("Continent");
+                cnt.region = rset.getString("Region");
+                cnt.population = rset.getInt("Population");
+                countries.add(cnt);
+            }
+            return countries;
+        }
+        catch (Exception e)
+        {
+            System.out.println(e.getMessage());
+            System.out.println("Failed to get top countries");
+            return null;
+        }
+    }
+
     public List<Country> getCountriesByContinentAndPopulation(String continent)
     {
         try
@@ -228,17 +259,19 @@ public class Main
     public static void main(String[] args)
     {
         Main a = new Main();
-        a.connect();
+
+        if (args.length < 1)
+        {
+            // Defaults to port 33060 for local IntelliJ execution against Docker
+            a.connect("localhost:33060", 5000);
+        }
+        else
+        {
+            a.connect(args[0], Integer.parseInt(args[1]));
+        }
 
         ArrayList<Country> countries = a.getAllCountriesSorted();
         a.printCountries(countries);
-        if (countries != null)
-        {
-            for (Country cnt : countries)
-            {
-                System.out.println(cnt.code + " " + cnt.name + " " + cnt.continent + " " + cnt.population);
-            }
-        }
 
         a.disconnect();
     }
