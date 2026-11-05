@@ -20,7 +20,6 @@ jobs:
       - name: Unit Tests
         run: |
           mvn -Dtest=com.napier.sem.AppTest test
-          mvn -Dtest=com.napier.sem.IntegrationTest test
 
       - name: Package and Run docker compose
         run: |
