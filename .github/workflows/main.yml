@@ -37,8 +37,7 @@ jobs:
             mvn -Dtest=com.napier.sem.IntegrationTest test
             docker stop employees
             docker rm employees
-            docker image rm database                    
-
+            docker image rm database                   
 
   build:
     name: Build and Start Using docker-compose
