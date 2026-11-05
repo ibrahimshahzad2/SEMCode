@@ -2,16 +2,19 @@ package com.napier.sem;
 
 import java.sql.*;
 import java.util.ArrayList;
+import java.util.List;
 
 public class Main
 {
     /**
-     * Connection to MySQL database.
+     - Connection to MySQL database.
+
      */
     private Connection con = null;
 
     /**
-     * Connect to the MySQL database.
+     - Connect to the MySQL database.
+
      */
     public void connect()
     {
@@ -52,7 +55,8 @@ public class Main
     }
 
     /**
-     * Disconnect from the MySQL database.
+     - Disconnect from the MySQL database.
+
      */
     public void disconnect()
     {
@@ -105,6 +109,25 @@ public class Main
         }
     }
 
+    public void printCountries(ArrayList<Country> countries)
+    {
+        // Check countries list is not null
+        if (countries == null)
+        {
+            System.out.println("No countries");
+            return;
+        }
+
+        // Print header / rows
+        for (Country cnt : countries)
+        {
+            if (cnt == null)
+                continue;
+
+            System.out.println(cnt.code + " " + cnt.name + " " + cnt.continent + " " + cnt.population);
+        }
+    }
+
     public ArrayList<Country> getAllCountriesSorted()
     {
         try
@@ -137,12 +160,78 @@ public class Main
         }
     }
 
+    public List<Country> getCountriesByContinentAndPopulation(String continent)
+    {
+        try
+        {
+            Statement stmt = con.createStatement();
+            String strSelect =
+                    "SELECT Code, Name, Continent, Region, Population, Capital "
+                            + "FROM country "
+                            + "WHERE Continent = '" + continent + "' "
+                            + "ORDER BY Population DESC";
+            ResultSet rset = stmt.executeQuery(strSelect);
+
+            ArrayList<Country> countries = new ArrayList<Country>();
+            while (rset.next())
+            {
+                Country cnt = new Country();
+                cnt.code = rset.getString("Code");
+                cnt.name = rset.getString("Name");
+                cnt.continent = rset.getString("Continent");
+                cnt.region = rset.getString("Region");
+                cnt.population = rset.getInt("Population");
+                countries.add(cnt);
+            }
+            return countries;
+        }
+        catch (Exception e)
+        {
+            System.out.println(e.getMessage());
+            System.out.println("Failed to get countries by continent");
+            return null;
+        }
+    }
+
+    public List<Country> getCountriesByPopulationLtS()
+    {
+        try
+        {
+            Statement stmt = con.createStatement();
+            String strSelect =
+                    "SELECT Code, Name, Continent, Region, Population, Capital "
+                            + "FROM country "
+                            + "ORDER BY Population DESC";
+            ResultSet rset = stmt.executeQuery(strSelect);
+
+            ArrayList<Country> countries = new ArrayList<Country>();
+            while (rset.next())
+            {
+                Country cnt = new Country();
+                cnt.code = rset.getString("Code");
+                cnt.name = rset.getString("Name");
+                cnt.continent = rset.getString("Continent");
+                cnt.region = rset.getString("Region");
+                cnt.population = rset.getInt("Population");
+                countries.add(cnt);
+            }
+            return countries;
+        }
+        catch (Exception e)
+        {
+            System.out.println(e.getMessage());
+            System.out.println("Failed to get countries");
+            return null;
+        }
+    }
+
     public static void main(String[] args)
     {
         Main a = new Main();
         a.connect();
 
         ArrayList<Country> countries = a.getAllCountriesSorted();
+        a.printCountries(countries);
         if (countries != null)
         {
             for (Country cnt : countries)
