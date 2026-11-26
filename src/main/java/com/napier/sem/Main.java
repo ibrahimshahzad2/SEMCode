@@ -1,5 +1,9 @@
 package com.napier.sem;
 
+import java.io.BufferedWriter;
+import java.io.File;
+import java.io.FileWriter;
+import java.io.IOException;
 import java.sql.*;
 import java.util.ArrayList;
 import java.util.List;
@@ -123,6 +127,48 @@ public class Main
                 continue;
 
             System.out.println(cnt.code + " " + cnt.name + " " + cnt.continent + " " + cnt.population);
+        }
+    }
+
+    public void outputCountries(ArrayList<Country> countries, String filename)
+    {
+        if (countries == null)
+        {
+            System.out.println("No countries");
+            return;
+        }
+
+        StringBuilder sb = new StringBuilder();
+        sb.append("| Code | Name | Continent | Region | Population |\r\n");
+        sb.append("| --- | --- | --- | --- | --- |\r\n");
+
+        for (Country cnt : countries)
+        {
+            if (cnt == null)
+                continue;
+
+            sb.append("| ")
+                    .append(cnt.code).append(" | ")
+                    .append(cnt.name).append(" | ")
+                    .append(cnt.continent).append(" | ")
+                    .append(cnt.region).append(" | ")
+                    .append(cnt.population).append(" |\r\n");
+        }
+
+        try
+        {
+            File dir = new File("./reports/");
+            if (!dir.exists())
+            {
+                dir.mkdirs();
+            }
+            BufferedWriter writer = new BufferedWriter(new FileWriter(new File(dir, filename)));
+            writer.write(sb.toString());
+            writer.close();
+        }
+        catch (IOException e)
+        {
+            e.printStackTrace();
         }
     }
 
@@ -272,6 +318,7 @@ public class Main
 
         ArrayList<Country> countries = a.getAllCountriesSorted();
         a.printCountries(countries);
+        a.outputCountries(countries, "CountriesByPopulation.md");
 
         a.disconnect();
     }
