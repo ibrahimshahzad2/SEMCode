@@ -78,7 +78,12 @@ jobs:
 
       - name: Copy Output
         run: |
-          CONTAINER_ID=$(docker compose ps -q app)
+          CONTAINER_ID=$(docker compose -f docker-compose.yml ps -aq app | head -n 1)
+          if [ -z "$CONTAINER_ID" ]; then
+            echo "No app container found"
+            docker compose -f docker-compose.yml ps -a
+            exit 1
+          fi
           docker container cp "$CONTAINER_ID":./reports ./reports
 
       - name: Deploy
