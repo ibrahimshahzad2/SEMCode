@@ -6,7 +6,7 @@
 
     <groupId>com.napier.sem</groupId>
     <artifactId>SEMCODE</artifactId>
-    <version>0.1.0.3</version>
+    <version>0.1.0.4</version>
 
     <properties>
         <maven.compiler.source>26</maven.compiler.source>
@@ -41,7 +41,7 @@
                 <executions>
                     <execution>
                         <id>default-jar</id>
-                        <!--  skip building the default-jar -->
+                        <!-- skip building the default-jar -->
                         <phase>none</phase>
                     </execution>
                 </executions>
@@ -72,7 +72,6 @@
                     </execution>
                 </executions>
             </plugin>
-
         </plugins>
     </build>
 </project>
