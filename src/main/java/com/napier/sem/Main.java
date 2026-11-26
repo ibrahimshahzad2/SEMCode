@@ -84,9 +84,10 @@ public class Main
             Statement stmt = con.createStatement();
             // Create string for SQL statement
             String strSelect =
-                    "SELECT Code, Name, Continent, Region, Population, Capital "
+                    "SELECT country.Code, country.Name, country.Continent, country.Region, country.Population, city.Name AS Capital "
                             + "FROM country "
-                            + "WHERE Code = '" + Code + "'";
+                            + "LEFT JOIN city ON country.Capital = city.ID "
+                            + "WHERE country.Code = '" + Code + "'";
             // Execute SQL statement
             ResultSet rset = stmt.executeQuery(strSelect);
             // Return new country if valid. Check one is returned
@@ -98,6 +99,7 @@ public class Main
                 cnt.continent = rset.getString("Continent");
                 cnt.region = rset.getString("Region");
                 cnt.population = rset.getInt("Population");
+                cnt.capital = rset.getString("Capital");
                 return cnt;
             }
             else
@@ -126,7 +128,7 @@ public class Main
             if (cnt == null)
                 continue;
 
-            System.out.println(cnt.code + " " + cnt.name + " " + cnt.continent + " " + cnt.population);
+            System.out.println(cnt.code + " " + cnt.name + " " + cnt.continent + " " + cnt.population + " " + cnt.capital);
         }
     }
 
@@ -139,8 +141,8 @@ public class Main
         }
 
         StringBuilder sb = new StringBuilder();
-        sb.append("| Code | Name | Continent | Region | Population |\r\n");
-        sb.append("| --- | --- | --- | --- | --- |\r\n");
+        sb.append("| Code | Name | Continent | Region | Population | Capital |\r\n");
+        sb.append("| --- | --- | --- | --- | --- | --- |\r\n");
 
         for (Country cnt : countries)
         {
@@ -152,7 +154,8 @@ public class Main
                     .append(cnt.name).append(" | ")
                     .append(cnt.continent).append(" | ")
                     .append(cnt.region).append(" | ")
-                    .append(cnt.population).append(" |\r\n");
+                    .append(cnt.population).append(" | ")
+                    .append(cnt.capital != null ? cnt.capital : "N/A").append(" |\r\n");
         }
 
         try
@@ -178,9 +181,10 @@ public class Main
         {
             Statement stmt = con.createStatement();
             String strSelect =
-                    "SELECT Code, Name, Continent, Region, Population, Capital "
+                    "SELECT country.Code, country.Name, country.Continent, country.Region, country.Population, city.Name AS Capital "
                             + "FROM country "
-                            + "ORDER BY Population DESC";
+                            + "LEFT JOIN city ON country.Capital = city.ID "
+                            + "ORDER BY country.Population DESC";
             ResultSet rset = stmt.executeQuery(strSelect);
 
             ArrayList<Country> countries = new ArrayList<Country>();
@@ -192,6 +196,7 @@ public class Main
                 cnt.continent = rset.getString("Continent");
                 cnt.region = rset.getString("Region");
                 cnt.population = rset.getInt("Population");
+                cnt.capital = rset.getString("Capital");
                 countries.add(cnt);
             }
             return countries;
@@ -210,9 +215,10 @@ public class Main
         {
             Statement stmt = con.createStatement();
             String strSelect =
-                    "SELECT Code, Name, Continent, Region, Population, Capital "
+                    "SELECT country.Code, country.Name, country.Continent, country.Region, country.Population, city.Name AS Capital "
                             + "FROM country "
-                            + "ORDER BY Population DESC "
+                            + "LEFT JOIN city ON country.Capital = city.ID "
+                            + "ORDER BY country.Population DESC "
                             + "LIMIT " + n;
             ResultSet rset = stmt.executeQuery(strSelect);
 
@@ -225,6 +231,7 @@ public class Main
                 cnt.continent = rset.getString("Continent");
                 cnt.region = rset.getString("Region");
                 cnt.population = rset.getInt("Population");
+                cnt.capital = rset.getString("Capital");
                 countries.add(cnt);
             }
             return countries;
@@ -237,16 +244,17 @@ public class Main
         }
     }
 
-    public List<Country> getCountriesByContinentAndPopulation(String continent)
+    public ArrayList<Country> getCountriesByContinentAndPopulation(String continent)
     {
         try
         {
             Statement stmt = con.createStatement();
             String strSelect =
-                    "SELECT Code, Name, Continent, Region, Population, Capital "
+                    "SELECT country.Code, country.Name, country.Continent, country.Region, country.Population, city.Name AS Capital "
                             + "FROM country "
-                            + "WHERE Continent = '" + continent + "' "
-                            + "ORDER BY Population DESC";
+                            + "LEFT JOIN city ON country.Capital = city.ID "
+                            + "WHERE country.Continent = '" + continent + "' "
+                            + "ORDER BY country.Population DESC";
             ResultSet rset = stmt.executeQuery(strSelect);
 
             ArrayList<Country> countries = new ArrayList<Country>();
@@ -258,6 +266,7 @@ public class Main
                 cnt.continent = rset.getString("Continent");
                 cnt.region = rset.getString("Region");
                 cnt.population = rset.getInt("Population");
+                cnt.capital = rset.getString("Capital");
                 countries.add(cnt);
             }
             return countries;
@@ -270,15 +279,17 @@ public class Main
         }
     }
 
-    public List<Country> getCountriesByPopulationLtS()
+    public ArrayList<Country> getCountriesByRegionAndPopulation(String region)
     {
         try
         {
             Statement stmt = con.createStatement();
             String strSelect =
-                    "SELECT Code, Name, Continent, Region, Population, Capital "
+                    "SELECT country.Code, country.Name, country.Continent, country.Region, country.Population, city.Name AS Capital "
                             + "FROM country "
-                            + "ORDER BY Population DESC";
+                            + "LEFT JOIN city ON country.Capital = city.ID "
+                            + "WHERE country.Region = '" + region + "' "
+                            + "ORDER BY country.Population DESC";
             ResultSet rset = stmt.executeQuery(strSelect);
 
             ArrayList<Country> countries = new ArrayList<Country>();
@@ -290,6 +301,7 @@ public class Main
                 cnt.continent = rset.getString("Continent");
                 cnt.region = rset.getString("Region");
                 cnt.population = rset.getInt("Population");
+                cnt.capital = rset.getString("Capital");
                 countries.add(cnt);
             }
             return countries;
@@ -297,9 +309,14 @@ public class Main
         catch (Exception e)
         {
             System.out.println(e.getMessage());
-            System.out.println("Failed to get countries");
+            System.out.println("Failed to get countries by region");
             return null;
         }
+    }
+
+    public List<Country> getCountriesByPopulationLtS()
+    {
+        return getAllCountriesSorted();
     }
 
     public static void main(String[] args)
@@ -319,6 +336,15 @@ public class Main
         ArrayList<Country> countries = a.getAllCountriesSorted();
         a.printCountries(countries);
         a.outputCountries(countries, "CountriesByPopulation.md");
+
+        ArrayList<Country> europeCountries = a.getCountriesByContinentAndPopulation("Europe");
+        a.outputCountries(europeCountries, "CountriesInEuropeByPopulation.md");
+
+        ArrayList<Country> westernEuropeCountries = a.getCountriesByRegionAndPopulation("Western Europe");
+        a.outputCountries(westernEuropeCountries, "CountriesInWesternEuropeByPopulation.md");
+
+        ArrayList<Country> top5Countries = a.getTopCountries(5);
+        a.outputCountries(top5Countries, "Top5CountriesByPopulation.md");
 
         a.disconnect();
     }
