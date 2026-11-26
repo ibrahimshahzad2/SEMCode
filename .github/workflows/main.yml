@@ -79,12 +79,8 @@ jobs:
       - name: Copy Output
         run: |
           CONTAINER_ID=$(docker compose -f docker-compose.yml ps -aq app | head -n 1)
-          if [ -z "$CONTAINER_ID" ]; then
-            echo "No app container found"
-            docker compose -f docker-compose.yml ps -a
-            exit 1
-          fi
-          docker container cp "$CONTAINER_ID":./reports ./reports
+          docker run --rm --volumes-from "$CONTAINER_ID" busybox find / -name "CountriesByPopulation.md" -o -name "reports" 2>/dev/null || true
+          docker container cp "$CONTAINER_ID":/tmp/reports ./reports
 
       - name: Deploy
         uses: JamesIves/github-pages-deploy-action@v4.2.5
